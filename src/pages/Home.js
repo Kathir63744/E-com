@@ -359,93 +359,20 @@ const Home = () => {
   }
 
   const quickViewProduct = (product) => {
-    // In a real app, this would open a modal with product details
     navigate(`/product/${product.id}`)
+  }
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+      setSearchQuery("")
+    }
   }
 
   return (
     <div className="bg-gradient-to-br from-slate-50 via-white to-blue-50 min-h-screen">
-      {/* Header with search and navigation */}
-      <header className="sticky top-0 z-50 bg-white shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Link to="/" className="text-2xl font-bold text-blue-600">
-                ShopNow
-              </Link>
-            </div>
 
-            <div className="hidden md:flex flex-1 max-w-xl mx-6">
-              <div className="relative w-full">
-                <input
-                  type="text"
-                  placeholder="Search for products, brands and more..."
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 p-1 rounded-lg">
-                  <Search className="w-5 h-5 text-white" />
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <Link to="/wishlist" className="relative p-2">
-                <Heart className="w-6 h-6" />
-                {Object.values(isWishlist).filter(Boolean).length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {Object.values(isWishlist).filter(Boolean).length}
-                  </span>
-                )}
-              </Link>
-              
-              <Link to="/cart" className="relative p-2">
-                <ShoppingCart className="w-6 h-6" />
-                {cartItems.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {cartItems.reduce((total, item) => total + item.quantity, 0)}
-                  </span>
-                )}
-              </Link>
-              
-              <button 
-                className="md:hidden p-2"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              >
-                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile search */}
-          <div className="md:hidden mt-3">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search for products, brands and more..."
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 p-1 rounded-lg">
-                <Search className="w-5 h-5 text-white" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200 p-4">
-            <div className="flex flex-col space-y-3">
-              <Link to="/categories" className="py-2 px-4 rounded-lg hover:bg-gray-100">Categories</Link>
-              <Link to="/offers" className="py-2 px-4 rounded-lg hover:bg-gray-100">Offers</Link>
-              <Link to="/account" className="py-2 px-4 rounded-lg hover:bg-gray-100">Account</Link>
-            </div>
-          </div>
-        )}
-      </header>
 
       {/* Hero Banner */}
       <HeroBanner />
@@ -528,7 +455,7 @@ const Home = () => {
             {flashSaleProducts.map((product) => (
               <div
                 key={product.id}
-                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group relative"
+                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group relative"
               >
                 <div className="absolute top-2 left-2 z-10 bg-red-500 text-white px-2 py-1 rounded-lg text-xs font-bold">
                   -{product.discount}%
@@ -618,10 +545,10 @@ const Home = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {categories.map((category) => (
-              <div
+              <Link
                 key={category.id}
+                to="/categories"
                 className="relative group cursor-pointer overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-                onClick={() => setActiveCategory(category.name)}
               >
                 <div className={`bg-gradient-to-br ${category.color} p-4 h-32 flex flex-col justify-between relative`}>
                   <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-8 -mt-8"></div>
@@ -650,7 +577,7 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

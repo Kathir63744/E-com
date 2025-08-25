@@ -10,6 +10,7 @@ import Category from "./pages/Category";
 import Login from "./pages/Login";
 import About from "./pages/About"
 import Register from "./pages/Register";  // add this import
+import Checkout from "./pages/checkout";
 
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
             <Route path="/categories/:id" element={<Category />} />
             <Route path="/login" element={<Login />} />  {/* ✅ FIXED */}
             <Route path="/register" element={<Register />} />
+            <Route path="/checkout" element={<Checkout />} />
           </Routes>
         </main>
         <Footer />
