@@ -9,6 +9,8 @@ import SearchResults from "./pages/SearchResults";
 import Category from "./pages/Category";
 import Login from "./pages/Login";
 import About from "./pages/About"
+import Register from "./pages/Register";  // add this import
+
 
 function App() {
   return (
@@ -24,6 +26,7 @@ function App() {
             <Route path="/search" element={<SearchResults />} />
             <Route path="/categories/:id" element={<Category />} />
             <Route path="/login" element={<Login />} />  {/* ✅ FIXED */}
+            <Route path="/register" element={<Register />} />
           </Routes>
         </main>
         <Footer />

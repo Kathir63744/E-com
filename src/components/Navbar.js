@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import {
   MagnifyingGlassIcon,
@@ -17,6 +17,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [user, setUser] = useState(null)
   const navigate = useNavigate()
 
   const categories = [
@@ -28,12 +29,36 @@ const Navbar = () => {
     { name: "Pottery", path: "/categories/pottery" },
   ]
 
+useEffect(() => {
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  if (storedUser) setUser(storedUser);
+
+  const handleLogin = () => {
+    const updatedUser = JSON.parse(localStorage.getItem("user"));
+    setUser(updatedUser);
+  };
+
+  window.addEventListener("login", handleLogin);
+
+  return () => {
+    window.removeEventListener("login", handleLogin);
+  };
+}, []);
+
+
   const handleSearch = (e) => {
     e.preventDefault()
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
       setSearchQuery("")
     }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("token")
+    localStorage.removeItem("user")
+    setUser(null)
+    navigate("/") // redirect to home
   }
 
   return (
@@ -53,8 +78,6 @@ const Navbar = () => {
             <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">
               Home
             </Link>
-
-            {/* Categories Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
@@ -65,7 +88,6 @@ const Navbar = () => {
                   className={cn("w-4 h-4 transition-transform", isCategoriesOpen && "rotate-180")}
                 />
               </button>
-
               {isCategoriesOpen && (
                 <div className="absolute top-full left-0 mt-2 w-48 bg-card border border-border rounded-lg shadow-lg py-2 z-50">
                   {categories.map((category) => (
@@ -81,7 +103,6 @@ const Navbar = () => {
                 </div>
               )}
             </div>
-
             <Link to="/about" className="text-foreground hover:text-primary transition-colors font-medium">
               About
             </Link>
@@ -101,30 +122,36 @@ const Navbar = () => {
             </form>
           </div>
 
-          {/* Desktop Actions */}
+          {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/wishlist" className="p-2 text-foreground hover:text-primary transition-colors relative">
-              <HeartIcon className="w-6 h-6" />
-              <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                0
-              </span>
-            </Link>
-
-            <Link to="/cart" className="p-2 text-foreground hover:text-primary transition-colors relative">
-              <ShoppingBagIcon className="w-6 h-6" />
-              <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                0
-              </span>
-            </Link>
-
-            {/* ✅ Fixed Login Path */}
-            <Link
-              to="/login"
-              className="flex items-center space-x-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-medium"
-            >
-              <UserIcon className="w-4 h-4" />
-              <span>Sign In</span>
-            </Link>
+            {user ? (
+              <div className="flex items-center space-x-2">
+                <UserIcon className="w-4 h-4" />
+                <span>Hello, {user.name}</span>
+                <button
+                  onClick={handleLogout}
+                  className="ml-2 text-red-500 font-medium hover:underline"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="flex items-center space-x-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-medium"
+                >
+                  <UserIcon className="w-4 h-4" />
+                  <span>Sign In</span>
+                </Link>
+                <Link
+                  to="/register"
+                  className="flex items-center space-x-2 border border-primary text-primary px-4 py-2 rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors font-medium"
+                >
+                  <span>Sign Up</span>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -139,7 +166,6 @@ const Navbar = () => {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden border-t border-border py-4 space-y-4">
-            {/* Mobile Search */}
             <form onSubmit={handleSearch} className="relative">
               <input
                 type="text"
@@ -151,7 +177,6 @@ const Navbar = () => {
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             </form>
 
-            {/* Mobile Navigation Links */}
             <div className="space-y-2">
               <Link to="/" className="block py-2 text-foreground hover:text-primary transition-colors font-medium">
                 Home
@@ -178,31 +203,36 @@ const Navbar = () => {
               </Link>
             </div>
 
-            {/* Mobile Actions */}
-            <div className="flex items-center justify-between pt-4 border-t border-border">
-              <div className="flex items-center space-x-4">
-                <Link to="/wishlist" className="p-2 text-foreground hover:text-primary transition-colors relative">
-                  <HeartIcon className="w-6 h-6" />
-                  <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    0
-                  </span>
-                </Link>
-
-                <Link to="/cart" className="p-2 text-foreground hover:text-primary transition-colors relative">
-                  <ShoppingBagIcon className="w-6 h-6" />
-                  <span className="absolute -top-1 -right-1 bg-accent text-accent-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    0
-                  </span>
-                </Link>
-              </div>
-
-              <Link
-                to="/login"
-                className="flex items-center space-x-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-medium"
-              >
-                <UserIcon className="w-4 h-4" />
-                <span>Sign In</span>
-              </Link>
+            {/* Mobile Auth Buttons */}
+            <div className="flex items-center justify-start space-x-2 pt-4 border-t border-border">
+              {user ? (
+                <div className="flex items-center space-x-2">
+                  <UserIcon className="w-4 h-4" />
+                  <span>Hello, {user.name}</span>
+                  <button
+                    onClick={handleLogout}
+                    className="ml-2 text-red-500 font-medium hover:underline"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    className="flex items-center space-x-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-medium"
+                  >
+                    <UserIcon className="w-4 h-4" />
+                    <span>Sign In</span>
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="flex items-center space-x-2 border border-primary text-primary px-4 py-2 rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors font-medium"
+                  >
+                    <span>Sign Up</span>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}

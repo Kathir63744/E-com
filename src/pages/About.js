@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { 
   Truck, 
   Shield, 
@@ -15,11 +15,22 @@ import {
   Package,
   Phone,
   Mail,
-  MapPin
+  MapPin,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react"
 
 const AboutPage = () => {
   const [activeTab, setActiveTab] = useState("mission")
+  const [currentSlide, setCurrentSlide] = useState(0)
+
+  // Auto-advance slides
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % 3)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
 
   const stats = [
     { value: "50K+", label: "Happy Customers", icon: <Users size={20} /> },
@@ -78,37 +89,90 @@ const AboutPage = () => {
     }
   ]
 
+  const slides = [
+    {
+      image: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80",
+      title: "Quality Products",
+      subtitle: "Carefully curated for your needs"
+    },
+    {
+      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80",
+      title: "Fast Delivery",
+      subtitle: "Across the country in record time"
+    },
+    {
+      image: "https://images.unsplash.com/photo-1577655197620-704858b270ac?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80",
+      title: "Eco-Friendly Packaging",
+      subtitle: "Sustainable solutions for a better tomorrow"
+    }
+  ]
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-r from-blue-600 to-indigo-700 text-white overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/45-degree-fabric-light.png')] opacity-10"></div>
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Our Story</h1>
-            <p className="text-xl opacity-90 mb-8">
-              From a small idea to a thriving e-commerce platform serving thousands of customers nationwide
-            </p>
-            <div className="flex justify-center">
-              <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center">
-                Explore Our Products <ArrowRight size={18} className="ml-2" />
-              </button>
-            </div>
+      {/* Hero Banner */}
+      <section className="relative h-96 overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-all duration-1000 ease-in-out"
+          style={{ backgroundImage: `url(${slides[currentSlide].image})` }}
+        >
+          <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        </div>
+        
+        <div className="absolute inset-0 flex items-center justify-center text-center text-white">
+          <div className="max-w-3xl px-6">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">{slides[currentSlide].title}</h1>
+            <p className="text-xl mb-8">{slides[currentSlide].subtitle}</p>
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-medium transition-colors flex items-center mx-auto">
+              Explore Our Products <ArrowRight size={18} className="ml-2" />
+            </button>
           </div>
+        </div>
+
+        {/* Slide controls */}
+        <button 
+          onClick={prevSlide}
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all"
+        >
+          <ChevronLeft size={24} />
+        </button>
+        <button 
+          onClick={nextSlide}
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all"
+        >
+          <ChevronRight size={24} />
+        </button>
+
+        {/* Slide indicators */}
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`w-3 h-3 rounded-full ${currentSlide === index ? 'bg-white' : 'bg-gray-400'}`}
+            />
+          ))}
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-white">
+      <section className="py-12 bg-white">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
-              <div key={index} className="text-center p-6 bg-gray-50 rounded-xl hover:shadow-md transition-shadow">
-                <div className="text-blue-600 flex justify-center mb-4">
+              <div key={index} className="text-center p-4 bg-gray-50 rounded-lg hover:shadow-md transition-shadow">
+                <div className="text-blue-600 flex justify-center mb-3">
                   {stat.icon}
                 </div>
-                <div className="text-3xl font-bold text-gray-800 mb-2">{stat.value}</div>
-                <div className="text-gray-600">{stat.label}</div>
+                <div className="text-2xl font-bold text-gray-800 mb-1">{stat.value}</div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -116,63 +180,63 @@ const AboutPage = () => {
       </section>
 
       {/* Mission & Story Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
-            <div className="flex border-b border-gray-200 mb-8">
+            <div className="flex border-b border-gray-200 mb-6">
               <button
-                className={`px-6 py-3 font-medium ${activeTab === "mission" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"}`}
+                className={`px-4 py-2 font-medium ${activeTab === "mission" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"}`}
                 onClick={() => setActiveTab("mission")}
               >
                 Our Mission
               </button>
               <button
-                className={`px-6 py-3 font-medium ${activeTab === "story" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"}`}
+                className={`px-4 py-2 font-medium ${activeTab === "story" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"}`}
                 onClick={() => setActiveTab("story")}
               >
                 Our Story
               </button>
               <button
-                className={`px-6 py-3 font-medium ${activeTab === "approach" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"}`}
+                className={`px-4 py-2 font-medium ${activeTab === "approach" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"}`}
                 onClick={() => setActiveTab("approach")}
               >
                 Our Approach
               </button>
             </div>
 
-            <div className="bg-white rounded-xl p-8 shadow-sm">
+            <div className="bg-white rounded-lg p-6 shadow-sm">
               {activeTab === "mission" && (
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-6">Our Mission</h2>
-                  <p className="text-gray-600 mb-6">
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">Our Mission</h2>
+                  <p className="text-gray-600 mb-4">
                     Our mission is to make online shopping accessible, enjoyable, and hassle-free for everyone. 
                     We believe that everyone deserves access to quality products at fair prices, delivered with 
                     exceptional customer service.
                   </p>
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid md:grid-cols-2 gap-4">
                     <div className="flex items-start">
-                      <CheckCircle size={20} className="text-green-500 mt-1 mr-3 flex-shrink-0" />
+                      <CheckCircle size={18} className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                       <div>
                         <h3 className="font-medium text-gray-800 mb-1">Quality Products</h3>
                         <p className="text-gray-600 text-sm">Carefully curated selection of high-quality items</p>
                       </div>
                     </div>
                     <div className="flex items-start">
-                      <CheckCircle size={20} className="text-green-500 mt-1 mr-3 flex-shrink-0" />
+                      <CheckCircle size={18} className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                       <div>
                         <h3 className="font-medium text-gray-800 mb-1">Fair Prices</h3>
                         <p className="text-gray-600 text-sm">Competitive pricing without compromising on quality</p>
                       </div>
                     </div>
                     <div className="flex items-start">
-                      <CheckCircle size={20} className="text-green-500 mt-1 mr-3 flex-shrink-0" />
+                      <CheckCircle size={18} className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                       <div>
                         <h3 className="font-medium text-gray-800 mb-1">Fast Delivery</h3>
                         <p className="text-gray-600 text-sm">Quick and reliable shipping across the country</p>
                       </div>
                     </div>
                     <div className="flex items-start">
-                      <CheckCircle size={20} className="text-green-500 mt-1 mr-3 flex-shrink-0" />
+                      <CheckCircle size={18} className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                       <div>
                         <h3 className="font-medium text-gray-800 mb-1">Eco-Conscious</h3>
                         <p className="text-gray-600 text-sm">Sustainable packaging and business practices</p>
@@ -184,16 +248,15 @@ const AboutPage = () => {
 
               {activeTab === "story" && (
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-6">Our Story</h2>
-                  <p className="text-gray-600 mb-4">
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">Our Story</h2>
+                  <p className="text-gray-600 mb-3">
                     Founded in 2015, we started as a small boutique online store with just 50 products. 
                     Our founder, Alex Johnson, noticed a gap in the market for an e-commerce platform that 
                     focused on both quality products and exceptional customer experience.
                   </p>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-600 mb-3">
                     What began as a passion project quickly grew as customers responded to our curated approach 
-                    to product selection and our commitment to transparency. By 2018, we had expanded our product 
-                    range to over 1,000 items and moved to a larger warehouse to accommodate our growing operations.
+                    to product selection and our commitment to transparency.
                   </p>
                   <p className="text-gray-600">
                     Today, we serve customers across the country with a team of dedicated professionals who share 
@@ -204,43 +267,43 @@ const AboutPage = () => {
 
               {activeTab === "approach" && (
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-800 mb-6">Our Approach</h2>
-                  <p className="text-gray-600 mb-6">
+                  <h2 className="text-xl font-bold text-gray-800 mb-4">Our Approach</h2>
+                  <p className="text-gray-600 mb-4">
                     We take a thoughtful approach to e-commerce that prioritizes both people and planet. 
                     Our business model is built on three key pillars:
                   </p>
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     <div className="flex items-start">
-                      <div className="bg-blue-100 p-3 rounded-lg mr-4">
-                        <Users size={24} className="text-blue-600" />
+                      <div className="bg-blue-100 p-2 rounded-lg mr-3">
+                        <Users size={20} className="text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-800 mb-2">Customer-Centricity</h3>
-                        <p className="text-gray-600">
+                        <h3 className="font-medium text-gray-800 mb-1">Customer-Centricity</h3>
+                        <p className="text-gray-600 text-sm">
                           Every decision we make starts with our customers' needs. From product selection to 
-                          website design, we prioritize creating the best possible experience for those we serve.
+                          website design, we prioritize creating the best possible experience.
                         </p>
                       </div>
                     </div>
                     <div className="flex items-start">
-                      <div className="bg-green-100 p-3 rounded-lg mr-4">
-                        <Globe size={24} className="text-green-600" />
+                      <div className="bg-green-100 p-2 rounded-lg mr-3">
+                        <Globe size={20} className="text-green-600" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-800 mb-2">Sustainability</h3>
-                        <p className="text-gray-600">
+                        <h3 className="font-medium text-gray-800 mb-1">Sustainability</h3>
+                        <p className="text-gray-600 text-sm">
                           We're committed to reducing our environmental impact through eco-friendly packaging, 
-                          carbon-neutral shipping options, and partnerships with suppliers who share our values.
+                          carbon-neutral shipping, and partnerships with sustainable suppliers.
                         </p>
                       </div>
                     </div>
                     <div className="flex items-start">
-                      <div className="bg-purple-100 p-3 rounded-lg mr-4">
-                        <Award size={24} className="text-purple-600" />
+                      <div className="bg-purple-100 p-2 rounded-lg mr-3">
+                        <Award size={20} className="text-purple-600" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-800 mb-2">Quality First</h3>
-                        <p className="text-gray-600">
+                        <h3 className="font-medium text-gray-800 mb-1">Quality First</h3>
+                        <p className="text-gray-600 text-sm">
                           Rather than offering thousands of mediocre products, we carefully select items that 
                           meet our quality standards and provide real value to our customers.
                         </p>
@@ -254,24 +317,30 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* Values Section */}
-      <section className="py-16 bg-white">
+      {/* Values Section with Banner */}
+      <section className="py-12 bg-white">
         <div className="container mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Our Values</h2>
-            <p className="text-gray-600">
-              These core principles guide everything we do, from product selection to customer service
-            </p>
+          <div className="flex flex-col md:flex-row items-center mb-10 bg-blue-50 rounded-lg overflow-hidden">
+            <div className="md:w-1/2 p-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Our Values</h2>
+              <p className="text-gray-600 mb-6">
+                These core principles guide everything we do, from product selection to customer service
+              </p>
+              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                Learn More
+              </button>
+            </div>
+            <div className="md:w-1/2 h-64 bg-cover bg-center" style={{backgroundImage: "url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80')"}}></div>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {values.map((value, index) => (
-              <div key={index} className="bg-gray-50 p-8 rounded-xl text-center hover:shadow-md transition-shadow">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-2xl text-blue-600 mb-6">
+              <div key={index} className="bg-gray-50 p-6 rounded-lg text-center hover:shadow-md transition-shadow">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl text-blue-600 mb-4">
                   {value.icon}
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">{value.title}</h3>
-                <p className="text-gray-600">{value.description}</p>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{value.title}</h3>
+                <p className="text-gray-600 text-sm">{value.description}</p>
               </div>
             ))}
           </div>
@@ -279,25 +348,25 @@ const AboutPage = () => {
       </section>
 
       {/* Team Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Meet Our Team</h2>
+          <div className="text-center max-w-3xl mx-auto mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-3">Meet Our Team</h2>
             <p className="text-gray-600">
               Behind our e-commerce platform is a dedicated team of professionals committed to excellence
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {team.map((member, index) => (
-              <div key={index} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <div className="h-48 bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center text-white text-2xl font-bold">
+              <div key={index} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <div className="h-40 bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center text-white text-xl font-bold">
                   {member.name.split(' ')[0][0]}{member.name.split(' ')[1][0]}
                 </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-1">{member.name}</h3>
-                  <p className="text-blue-600 mb-4">{member.role}</p>
-                  <p className="text-gray-600 text-sm">{member.bio}</p>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-1">{member.name}</h3>
+                  <p className="text-blue-600 text-sm mb-2">{member.role}</p>
+                  <p className="text-gray-600 text-xs">{member.bio}</p>
                 </div>
               </div>
             ))}
@@ -305,77 +374,25 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-6">Join Thousands of Happy Customers</h2>
-            <p className="text-xl opacity-90 mb-10">
-              Experience the difference of shopping with a company that truly cares
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <button className="bg-white text-blue-600 px-8 py-4 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                Shop Now
-              </button>
-              <button className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-medium hover:bg-white hover:text-blue-600 transition-colors">
-                Contact Us
-              </button>
-            </div>
+      {/* CTA Section with Banner */}
+      <section className="py-12 bg-blue-600 text-white">
+        <div className="container mx-auto px-6 text-center">
+          <h2 className="text-2xl font-bold mb-4">Join Thousands of Happy Customers</h2>
+          <p className="mb-6 opacity-90">
+            Experience the difference of shopping with a company that truly cares
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+              Shop Now
+            </button>
+            <button className="bg-transparent border border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white hover:text-blue-600 transition-colors">
+              Contact Us
+            </button>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-xl font-semibold mb-4">About Us</h3>
-              <p className="text-gray-400">
-                Making online shopping better through quality products, fair prices, and exceptional service.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Our Story</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Sustainability</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-4">Customer Service</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">FAQs</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Returns & Exchanges</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Shipping Information</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-4">Contact Info</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li className="flex items-center">
-                  <MapPin size={18} className="mr-3" />
-                  123 Commerce Street, City, Country
-                </li>
-                <li className="flex items-center">
-                  <Phone size={18} className="mr-3" />
-                  +1 (555) 123-4567
-                </li>
-                <li className="flex items-center">
-                  <Mail size={18} className="mr-3" />
-                  hello@ecommerceexample.com
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>© {new Date().getFullYear()} Your E-Commerce Store. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+
     </div>
   )
 }
