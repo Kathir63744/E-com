@@ -1,57 +1,81 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import api from "../utils/axios";
+import React, { useState } from "react";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  const navigate = useNavigate();
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setIsLoading(true);
 
     try {
-      const res = await api.post("/auth/login", {
-        email: email.trim().toLowerCase(),
-        password: password.trim(), // plaintext only
-      });
+      const res = await fetch(
+        "https://e-com-backend-7-wm33.onrender.com/api/auth/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      window.dispatchEvent(new Event("login"));
-      navigate("/");
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.message || "Login failed");
+      }
+
+      const data = await res.json();
+      console.log("✅ Login success:", data);
+      localStorage.setItem("token", data.token);
+      // redirect after login
+      window.location.href = "/";
     } catch (err) {
-      console.error(err.response?.data);
-      setError(err.response?.data?.message || "Login failed. Try again.");
-    } finally {
-      setIsLoading(false);
+      setError(err.message);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-xl p-8">
-        <h1 className="text-2xl font-bold text-center mb-6">Sign In</h1>
-
-        {error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required className="w-full p-2 border rounded"/>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required className="w-full p-2 border rounded"/>
-          <button type="submit" disabled={isLoading} className="w-full bg-blue-600 text-white p-2 rounded">
-            {isLoading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
-
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Don't have an account? <Link to="/register" className="text-blue-600">Sign Up</Link>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-lg rounded-lg p-8 w-96"
+      >
+        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+        {error && <p className="text-red-500 text-center">{error}</p>}
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          onChange={handleChange}
+          value={formData.email}
+          className="w-full p-2 mb-4 border rounded"
+          required
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          onChange={handleChange}
+          value={formData.password}
+          className="w-full p-2 mb-4 border rounded"
+          required
+        />
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+        >
+          Login
+        </button>
+        <p className="text-sm text-center mt-4">
+          Don’t have an account?{" "}
+          <a href="/register" className="text-blue-500 hover:underline">
+            Sign up
+          </a>
         </p>
-      </div>
+      </form>
     </div>
   );
 };
